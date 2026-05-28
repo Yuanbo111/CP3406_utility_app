@@ -18,3 +18,6 @@ local.properties
 # Assignment brief (JCU IP, not source code)
 /utility app/
 
+# Personal study notes (never commit)
+FULL_MARK_BLUEPRINT.md
+
