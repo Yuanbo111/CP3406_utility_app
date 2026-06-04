@@ -174,6 +174,7 @@ private fun MainScreenContent(
                             isLoading = uiState.isLoading,
                             horoscope = uiState.horoscope,
                             error = uiState.error,
+                            readingLength = uiState.readingLength,
                         )
                     }
                 }

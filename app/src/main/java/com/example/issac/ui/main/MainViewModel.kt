@@ -3,6 +3,7 @@ package com.example.issac.ui.main
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.issac.data.horoscope.HoroscopeRepository
+import com.example.issac.data.settings.SettingsRepository
 import com.example.issac.domain.model.Zodiac
 import com.example.issac.domain.usecase.DetermineZodiacUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -18,21 +19,32 @@ import java.time.ZoneOffset
 import javax.inject.Inject
 
 /**
- * Owns the Today screen's state. Hilt injects the [HoroscopeRepository].
+ * Owns the Today screen's state. Hilt injects the [HoroscopeRepository] and the
+ * shared [SettingsRepository].
  *
  * When the user picks a birth date we compute their age and zodiac immediately,
- * then fetch today's horoscope in the background and fold success or failure
- * into the state, so the screen can show a loading, loaded, or error view.
+ * then fetch today's horoscope in the background. The reading-length setting is
+ * observed from the repository, so changing it in Settings reformats the reading
+ * shown here without re-fetching.
  */
 @HiltViewModel
 class MainViewModel @Inject constructor(
     private val horoscopeRepository: HoroscopeRepository,
+    private val settingsRepository: SettingsRepository,
 ) : ViewModel() {
 
     private val determineZodiac = DetermineZodiacUseCase()
 
     private val _uiState = MutableStateFlow(MainUiState())
     val uiState: StateFlow<MainUiState> = _uiState.asStateFlow()
+
+    init {
+        viewModelScope.launch {
+            settingsRepository.readingLength.collect { length ->
+                _uiState.update { it.copy(readingLength = length) }
+            }
+        }
+    }
 
     /**
      * Handles a confirmed date from the picker. Material 3's DatePicker reports

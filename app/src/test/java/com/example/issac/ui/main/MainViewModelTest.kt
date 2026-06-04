@@ -4,6 +4,7 @@ import com.example.issac.data.horoscope.HoroscopeApi
 import com.example.issac.data.horoscope.HoroscopeRepository
 import com.example.issac.data.horoscope.dto.HoroscopeData
 import com.example.issac.data.horoscope.dto.HoroscopeResponse
+import com.example.issac.data.settings.SettingsRepository
 import com.example.issac.domain.model.Zodiac
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -39,7 +40,10 @@ class MainViewModelTest {
     private fun viewModelWith(
         text: String = "A bright day ahead.",
         error: Throwable? = null,
-    ) = MainViewModel(HoroscopeRepository(FakeHoroscopeApi(text, error)))
+    ) = MainViewModel(
+        HoroscopeRepository(FakeHoroscopeApi(text, error)),
+        SettingsRepository(),
+    )
 
     private fun millisFor(date: LocalDate): Long =
         date.atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli()
