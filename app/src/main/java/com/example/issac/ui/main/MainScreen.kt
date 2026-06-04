@@ -32,7 +32,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -40,6 +39,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.issac.R
 import com.example.issac.domain.model.Zodiac
+import com.example.issac.ui.main.components.AgeCard
 import com.example.issac.ui.main.components.ZodiacBadge
 import com.example.issac.ui.theme.IssacTheme
 import java.time.LocalDate
@@ -160,11 +160,7 @@ private fun MainScreenContent(
                             modifier = Modifier.padding(vertical = 12.dp),
                             color = Color.Gray.copy(alpha = 0.5f),
                         )
-                        Text(
-                            text = "Age: ${age.years} years, ${age.months} months, ${age.days} days",
-                            fontSize = 18.sp,
-                            textAlign = TextAlign.Center,
-                        )
+                        AgeCard(age = age)
                         Spacer(modifier = Modifier.height(16.dp))
                         ZodiacBadge(zodiac = zodiac)
                     }
