@@ -3,6 +3,8 @@ package com.example.issac.data.horoscope
 import com.example.issac.domain.model.Horoscope
 import com.example.issac.domain.model.Zodiac
 import java.time.LocalDate
+import javax.inject.Inject
+import javax.inject.Singleton
 import kotlin.coroutines.cancellation.CancellationException
 
 /**
@@ -13,7 +15,8 @@ import kotlin.coroutines.cancellation.CancellationException
  * model, and reports any problem as a failed [Result] instead of throwing, so
  * the ViewModel can show an error state rather than crashing.
  */
-class HoroscopeRepository(
+@Singleton
+class HoroscopeRepository @Inject constructor(
     private val api: HoroscopeApi,
 ) {
 
