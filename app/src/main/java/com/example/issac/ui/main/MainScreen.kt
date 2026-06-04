@@ -26,7 +26,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -37,25 +36,28 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.issac.R
-import com.example.issac.domain.usecase.DetermineZodiacUseCase
+import com.example.issac.domain.model.Zodiac
 import com.example.issac.ui.theme.IssacTheme
-import java.time.Instant
 import java.time.LocalDate
 import java.time.Period
-import java.time.ZoneId
 
 @Composable
-fun MainScreen(modifier: Modifier = Modifier) {
-    var selectedDate by rememberSaveable { mutableStateOf<Long?>(null) }
+fun MainScreen(
+    modifier: Modifier = Modifier,
+    viewModel: MainViewModel = viewModel(),
+) {
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     var showDatePicker by remember { mutableStateOf(false) }
 
     MainScreenContent(
         modifier = modifier,
-        selectedDate = selectedDate,
+        uiState = uiState,
         showDatePicker = showDatePicker,
-        onDateChange = { selectedDate = it },
-        onShowDatePicker = { showDatePicker = it }
+        onDateSelected = viewModel::onBirthDateSelected,
+        onShowDatePicker = { showDatePicker = it },
     )
 }
 
@@ -63,26 +65,25 @@ fun MainScreen(modifier: Modifier = Modifier) {
 @Composable
 private fun MainScreenContent(
     modifier: Modifier = Modifier,
-    selectedDate: Long?,
+    uiState: MainUiState,
     showDatePicker: Boolean,
-    onDateChange: (Long?) -> Unit,
-    onShowDatePicker: (Boolean) -> Unit
+    onDateSelected: (Long?) -> Unit,
+    onShowDatePicker: (Boolean) -> Unit,
 ) {
     val datePickerState = rememberDatePickerState()
-    val determineZodiac = remember { DetermineZodiacUseCase() }
 
     Box(modifier = modifier.fillMaxSize()) {
         Image(
             painter = painterResource(id = R.drawable.background_zodiac),
             contentDescription = null,
             modifier = Modifier.fillMaxSize(),
-            contentScale = ContentScale.Crop
+            contentScale = ContentScale.Crop,
         )
 
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color.Black.copy(alpha = 0.3f))
+                .background(Color.Black.copy(alpha = 0.3f)),
         )
 
         Column(
@@ -90,23 +91,23 @@ private fun MainScreenContent(
                 .fillMaxSize()
                 .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+            verticalArrangement = Arrangement.Center,
         ) {
             Text(
                 text = "Age & Zodiac Calculator",
                 fontSize = 28.sp,
                 color = Color.White,
-                modifier = Modifier.padding(bottom = 32.dp)
+                modifier = Modifier.padding(bottom = 32.dp),
             )
 
             Button(
                 onClick = { onShowDatePicker(true) },
                 colors = ButtonDefaults.buttonColors(
                     containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                    contentColor = MaterialTheme.colorScheme.onSecondaryContainer
-                )
+                    contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                ),
             ) {
-                Text(text = if (selectedDate == null) "Select Birth Date" else "Change Date")
+                Text(text = if (uiState.birthDate == null) "Select Birth Date" else "Change Date")
             }
 
             if (showDatePicker) {
@@ -114,7 +115,7 @@ private fun MainScreenContent(
                     onDismissRequest = { onShowDatePicker(false) },
                     confirmButton = {
                         TextButton(onClick = {
-                            onDateChange(datePickerState.selectedDateMillis)
+                            onDateSelected(datePickerState.selectedDateMillis)
                             onShowDatePicker(false)
                         }) {
                             Text("OK")
@@ -124,7 +125,7 @@ private fun MainScreenContent(
                         TextButton(onClick = { onShowDatePicker(false) }) {
                             Text("Cancel")
                         }
-                    }
+                    },
                 ) {
                     DatePicker(state = datePickerState)
                 }
@@ -132,47 +133,43 @@ private fun MainScreenContent(
 
             Spacer(modifier = Modifier.height(32.dp))
 
-            selectedDate?.let { millis ->
-                val birthDate = Instant.ofEpochMilli(millis)
-                    .atZone(ZoneId.systemDefault())
-                    .toLocalDate()
-                val today = LocalDate.now()
-                val period = Period.between(birthDate, today)
-                val zodiac = determineZodiac(birthDate)
-
+            val birthDate = uiState.birthDate
+            val zodiac = uiState.zodiac
+            val age = uiState.age
+            if (birthDate != null && zodiac != null && age != null) {
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
                     colors = CardDefaults.cardColors(
-                        containerColor = Color.White.copy(alpha = 0.9f)
-                    )
+                        containerColor = Color.White.copy(alpha = 0.9f),
+                    ),
                 ) {
                     Column(
                         modifier = Modifier.padding(24.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
+                        horizontalAlignment = Alignment.CenterHorizontally,
                     ) {
                         Text(
                             text = "Your Destiny",
                             fontSize = 22.sp,
                             color = Color(0xFF1B263B),
-                            modifier = Modifier.padding(bottom = 12.dp)
+                            modifier = Modifier.padding(bottom = 12.dp),
                         )
                         Text(text = "Birth Date: $birthDate", fontSize = 16.sp)
                         HorizontalDivider(
                             modifier = Modifier.padding(vertical = 12.dp),
-                            color = Color.Gray.copy(alpha = 0.5f)
+                            color = Color.Gray.copy(alpha = 0.5f),
                         )
                         Text(
-                            text = "Age: ${period.years} years, ${period.months} months, ${period.days} days",
+                            text = "Age: ${age.years} years, ${age.months} months, ${age.days} days",
                             fontSize = 18.sp,
-                            textAlign = TextAlign.Center
+                            textAlign = TextAlign.Center,
                         )
                         Spacer(modifier = Modifier.height(16.dp))
                         Text(text = "Zodiac Sign", fontSize = 14.sp, color = Color.Gray)
                         Text(
                             text = "${zodiac.symbol} ${zodiac.displayName}",
                             fontSize = 32.sp,
-                            color = MaterialTheme.colorScheme.primary
+                            color = MaterialTheme.colorScheme.primary,
                         )
                     }
                 }
@@ -184,12 +181,17 @@ private fun MainScreenContent(
 @Preview(showBackground = true)
 @Composable
 private fun MainScreenPreview() {
+    val sampleBirthDate = LocalDate.of(1990, 8, 10)
     IssacTheme {
         MainScreenContent(
-            selectedDate = 648432000000L,
+            uiState = MainUiState(
+                birthDate = sampleBirthDate,
+                zodiac = Zodiac.LEO,
+                age = Period.between(sampleBirthDate, LocalDate.now()),
+            ),
             showDatePicker = false,
-            onDateChange = {},
-            onShowDatePicker = {}
+            onDateSelected = {},
+            onShowDatePicker = {},
         )
     }
 }
