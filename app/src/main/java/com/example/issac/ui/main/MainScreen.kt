@@ -40,6 +40,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.issac.R
 import com.example.issac.domain.model.Zodiac
+import com.example.issac.ui.main.components.ZodiacBadge
 import com.example.issac.ui.theme.IssacTheme
 import java.time.LocalDate
 import java.time.Period
@@ -165,12 +166,7 @@ private fun MainScreenContent(
                             textAlign = TextAlign.Center,
                         )
                         Spacer(modifier = Modifier.height(16.dp))
-                        Text(text = "Zodiac Sign", fontSize = 14.sp, color = Color.Gray)
-                        Text(
-                            text = "${zodiac.symbol} ${zodiac.displayName}",
-                            fontSize = 32.sp,
-                            color = MaterialTheme.colorScheme.primary,
-                        )
+                        ZodiacBadge(zodiac = zodiac)
                     }
                 }
             }
