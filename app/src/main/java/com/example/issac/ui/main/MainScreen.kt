@@ -14,7 +14,6 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -33,7 +32,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -43,6 +41,7 @@ import com.example.issac.R
 import com.example.issac.domain.model.Horoscope
 import com.example.issac.domain.model.Zodiac
 import com.example.issac.ui.main.components.AgeCard
+import com.example.issac.ui.main.components.HoroscopeCard
 import com.example.issac.ui.main.components.ZodiacBadge
 import com.example.issac.ui.theme.IssacTheme
 import java.time.LocalDate
@@ -171,30 +170,11 @@ private fun MainScreenContent(
                             modifier = Modifier.padding(vertical = 12.dp),
                             color = Color.Gray.copy(alpha = 0.5f),
                         )
-                        Text(text = "Today's Reading", fontSize = 14.sp, color = Color.Gray)
-                        Spacer(modifier = Modifier.height(8.dp))
-
-                        val horoscope = uiState.horoscope
-                        val error = uiState.error
-                        when {
-                            uiState.isLoading -> CircularProgressIndicator(
-                                modifier = Modifier.padding(8.dp),
-                            )
-
-                            error != null -> Text(
-                                text = error,
-                                fontSize = 14.sp,
-                                color = Color(0xFFB00020),
-                                textAlign = TextAlign.Center,
-                            )
-
-                            horoscope != null -> Text(
-                                text = horoscope.text,
-                                fontSize = 15.sp,
-                                color = Color(0xFF1B263B),
-                                textAlign = TextAlign.Center,
-                            )
-                        }
+                        HoroscopeCard(
+                            isLoading = uiState.isLoading,
+                            horoscope = uiState.horoscope,
+                            error = uiState.error,
+                        )
                     }
                 }
             }
