@@ -25,4 +25,10 @@
     <string name="reading_length_description">How much of today\'s horoscope to show on the Today screen.</string>
     <string name="reading_length_short">Short</string>
     <string name="reading_length_full">Full</string>
+
+    <!-- Settings: theme -->
+    <string name="theme_title">Theme</string>
+    <string name="theme_system">System</string>
+    <string name="theme_light">Light</string>
+    <string name="theme_dark">Dark</string>
 </resources>

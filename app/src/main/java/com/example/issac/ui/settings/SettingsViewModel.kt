@@ -3,6 +3,7 @@ package com.example.issac.ui.settings
 import androidx.lifecycle.ViewModel
 import com.example.issac.data.settings.ReadingLength
 import com.example.issac.data.settings.SettingsRepository
+import com.example.issac.data.settings.ThemeMode
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.StateFlow
 import javax.inject.Inject
@@ -21,5 +22,11 @@ class SettingsViewModel @Inject constructor(
 
     fun onReadingLengthChange(length: ReadingLength) {
         settingsRepository.setReadingLength(length)
+    }
+
+    val themeMode: StateFlow<ThemeMode> = settingsRepository.themeMode
+
+    fun onThemeModeChange(mode: ThemeMode) {
+        settingsRepository.setThemeMode(mode)
     }
 }

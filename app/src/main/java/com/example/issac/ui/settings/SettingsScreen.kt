@@ -21,6 +21,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.issac.R
 import com.example.issac.data.settings.ReadingLength
+import com.example.issac.data.settings.ThemeMode
 import com.example.issac.ui.theme.IssacTheme
 
 @Composable
@@ -29,11 +30,14 @@ fun SettingsScreen(
     viewModel: SettingsViewModel = hiltViewModel(),
 ) {
     val readingLength by viewModel.readingLength.collectAsStateWithLifecycle()
+    val themeMode by viewModel.themeMode.collectAsStateWithLifecycle()
 
     SettingsScreenContent(
         modifier = modifier,
         readingLength = readingLength,
         onReadingLengthChange = viewModel::onReadingLengthChange,
+        themeMode = themeMode,
+        onThemeModeChange = viewModel::onThemeModeChange,
     )
 }
 
@@ -43,6 +47,8 @@ private fun SettingsScreenContent(
     modifier: Modifier = Modifier,
     readingLength: ReadingLength,
     onReadingLengthChange: (ReadingLength) -> Unit,
+    themeMode: ThemeMode,
+    onThemeModeChange: (ThemeMode) -> Unit,
 ) {
     Column(
         modifier = modifier
@@ -74,6 +80,23 @@ private fun SettingsScreenContent(
                 }
             }
         }
+
+        Text(
+            text = stringResource(R.string.theme_title),
+            style = MaterialTheme.typography.titleMedium,
+            modifier = Modifier.padding(top = 24.dp),
+        )
+        SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
+            ThemeMode.entries.forEachIndexed { index, mode ->
+                SegmentedButton(
+                    selected = mode == themeMode,
+                    onClick = { onThemeModeChange(mode) },
+                    shape = SegmentedButtonDefaults.itemShape(index, ThemeMode.entries.size),
+                ) {
+                    Text(stringResource(mode.labelRes))
+                }
+            }
+        }
     }
 }
 
@@ -84,6 +107,8 @@ private fun SettingsScreenPreview() {
         SettingsScreenContent(
             readingLength = ReadingLength.FULL,
             onReadingLengthChange = {},
+            themeMode = ThemeMode.SYSTEM,
+            onThemeModeChange = {},
         )
     }
 }

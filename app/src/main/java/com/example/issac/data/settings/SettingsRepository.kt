@@ -20,4 +20,11 @@ class SettingsRepository @Inject constructor() {
     fun setReadingLength(length: ReadingLength) {
         _readingLength.value = length
     }
+
+    private val _themeMode = MutableStateFlow(ThemeMode.SYSTEM)
+    val themeMode: StateFlow<ThemeMode> = _themeMode.asStateFlow()
+
+    fun setThemeMode(mode: ThemeMode) {
+        _themeMode.value = mode
+    }
 }
