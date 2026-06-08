@@ -23,6 +23,7 @@ import com.example.issac.ui.theme.IssacTheme
 fun ZodiacBadge(
     zodiac: Zodiac,
     modifier: Modifier = Modifier,
+    color: Color = MaterialTheme.colorScheme.primary,
 ) {
     Column(
         modifier = modifier,
@@ -31,12 +32,12 @@ fun ZodiacBadge(
         Text(
             text = stringResource(R.string.zodiac_sign_caption),
             fontSize = 14.sp,
-            color = Color.Gray,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
         Text(
             text = "${zodiac.symbol} ${zodiac.displayName}",
             fontSize = 32.sp,
-            color = MaterialTheme.colorScheme.primary,
+            color = color,
         )
     }
 }

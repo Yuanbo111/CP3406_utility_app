@@ -1,6 +1,5 @@
 package com.example.issac.ui.theme
 
-import android.app.Activity
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
@@ -12,32 +11,37 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 
 private val DarkColorScheme = darkColorScheme(
-    primary = Purple80,
-    secondary = PurpleGrey80,
-    tertiary = Pink80
+    primary = Indigo80,
+    onPrimary = OnIndigoDark,
+    primaryContainer = IndigoContainerDark,
+    onPrimaryContainer = IndigoContainerLight,
+    secondary = Slate80,
+    tertiary = Gold80,
+    tertiaryContainer = GoldContainerDark,
+    onTertiaryContainer = GoldContainerLight,
+    background = NightSurface,
+    surface = NightSurface,
 )
 
 private val LightColorScheme = lightColorScheme(
-    primary = Purple40,
-    secondary = PurpleGrey40,
-    tertiary = Pink40
-
-    /* Other default colors to override
-    background = Color(0xFFFFFBFE),
-    surface = Color(0xFFFFFBFE),
-    onPrimary = Color.White,
-    onSecondary = Color.White,
-    onTertiary = Color.White,
-    onBackground = Color(0xFF1C1B1F),
-    onSurface = Color(0xFF1C1B1F),
-    */
+    primary = Indigo40,
+    onPrimary = OnIndigoLight,
+    primaryContainer = IndigoContainerLight,
+    onPrimaryContainer = OnIndigoContainerLight,
+    secondary = Slate40,
+    tertiary = Gold40,
+    tertiaryContainer = GoldContainerLight,
+    onTertiaryContainer = OnGoldContainerLight,
+    background = LightSurface,
+    surface = LightSurface,
 )
 
 @Composable
 fun IssacTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
-    // Dynamic color is available on Android 12+
-    dynamicColor: Boolean = true,
+    // Off by default so the Daily Star brand colours show. When true on Android
+    // 12+, the system wallpaper palette (Material You) overrides the brand.
+    dynamicColor: Boolean = false,
     content: @Composable () -> Unit
 ) {
     val colorScheme = when {

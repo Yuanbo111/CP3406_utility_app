@@ -45,6 +45,7 @@ import com.example.issac.ui.main.components.AgeCard
 import com.example.issac.ui.main.components.HoroscopeCard
 import com.example.issac.ui.main.components.ZodiacBadge
 import com.example.issac.ui.theme.IssacTheme
+import com.example.issac.ui.theme.StarGold
 import java.time.LocalDate
 import java.time.Period
 
@@ -100,7 +101,7 @@ private fun MainScreenContent(
             Text(
                 text = stringResource(R.string.app_name),
                 fontSize = 28.sp,
-                color = Color.White,
+                color = StarGold,
                 modifier = Modifier.padding(bottom = 32.dp),
             )
 
@@ -150,7 +151,11 @@ private fun MainScreenContent(
                     modifier = Modifier.fillMaxWidth(),
                     elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
                     colors = CardDefaults.cardColors(
-                        containerColor = Color.White.copy(alpha = 0.9f),
+                        // A translucent themed surface over the hero image:
+                        // near-white in light mode, dark in dark mode. Text colour
+                        // follows automatically via onSurface.
+                        containerColor = MaterialTheme.colorScheme.surfaceContainer.copy(alpha = 0.95f),
+                        contentColor = MaterialTheme.colorScheme.onSurface,
                     ),
                 ) {
                     Column(
@@ -160,13 +165,13 @@ private fun MainScreenContent(
                         Text(
                             text = stringResource(R.string.destiny_title),
                             fontSize = 22.sp,
-                            color = Color(0xFF1B263B),
+                            color = MaterialTheme.colorScheme.onSurface,
                             modifier = Modifier.padding(bottom = 12.dp),
                         )
                         Text(text = stringResource(R.string.birth_date_label, birthDate), fontSize = 16.sp)
                         HorizontalDivider(
                             modifier = Modifier.padding(vertical = 12.dp),
-                            color = Color.Gray.copy(alpha = 0.5f),
+                            color = MaterialTheme.colorScheme.outlineVariant,
                         )
                         AgeCard(age = age)
                         Spacer(modifier = Modifier.height(16.dp))
@@ -174,7 +179,7 @@ private fun MainScreenContent(
 
                         HorizontalDivider(
                             modifier = Modifier.padding(vertical = 12.dp),
-                            color = Color.Gray.copy(alpha = 0.5f),
+                            color = MaterialTheme.colorScheme.outlineVariant,
                         )
                         HoroscopeCard(
                             isLoading = uiState.isLoading,
