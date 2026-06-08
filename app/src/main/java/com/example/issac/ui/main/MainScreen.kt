@@ -32,6 +32,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -97,7 +98,7 @@ private fun MainScreenContent(
             verticalArrangement = Arrangement.Center,
         ) {
             Text(
-                text = "Age & Zodiac Calculator",
+                text = stringResource(R.string.app_name),
                 fontSize = 28.sp,
                 color = Color.White,
                 modifier = Modifier.padding(bottom = 32.dp),
@@ -110,7 +111,12 @@ private fun MainScreenContent(
                     contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
                 ),
             ) {
-                Text(text = if (uiState.birthDate == null) "Select Birth Date" else "Change Date")
+                Text(
+                    text = stringResource(
+                        if (uiState.birthDate == null) R.string.select_birth_date
+                        else R.string.change_date,
+                    ),
+                )
             }
 
             if (showDatePicker) {
@@ -121,12 +127,12 @@ private fun MainScreenContent(
                             onDateSelected(datePickerState.selectedDateMillis)
                             onShowDatePicker(false)
                         }) {
-                            Text("OK")
+                            Text(stringResource(R.string.action_ok))
                         }
                     },
                     dismissButton = {
                         TextButton(onClick = { onShowDatePicker(false) }) {
-                            Text("Cancel")
+                            Text(stringResource(R.string.action_cancel))
                         }
                     },
                 ) {
@@ -152,12 +158,12 @@ private fun MainScreenContent(
                         horizontalAlignment = Alignment.CenterHorizontally,
                     ) {
                         Text(
-                            text = "Your Destiny",
+                            text = stringResource(R.string.destiny_title),
                             fontSize = 22.sp,
                             color = Color(0xFF1B263B),
                             modifier = Modifier.padding(bottom = 12.dp),
                         )
-                        Text(text = "Birth Date: $birthDate", fontSize = 16.sp)
+                        Text(text = stringResource(R.string.birth_date_label, birthDate), fontSize = 16.sp)
                         HorizontalDivider(
                             modifier = Modifier.padding(vertical = 12.dp),
                             color = Color.Gray.copy(alpha = 0.5f),
@@ -173,7 +179,7 @@ private fun MainScreenContent(
                         HoroscopeCard(
                             isLoading = uiState.isLoading,
                             horoscope = uiState.horoscope,
-                            error = uiState.error,
+                            isError = uiState.isError,
                             readingLength = uiState.readingLength,
                         )
                     }

@@ -12,8 +12,9 @@ import java.time.Period
  * The screen is a pure function of this state: whenever [MainViewModel] emits a
  * new instance, Compose recomposes. A null [birthDate] is the initial
  * "no date chosen yet" state. While the horoscope is being fetched [isLoading]
- * is true; on failure [error] holds a user-facing message. [readingLength]
- * mirrors the user's Settings choice and controls how much of the reading shows.
+ * is true; on failure [isError] is true and the UI shows the error message.
+ * [readingLength] mirrors the user's Settings choice and controls how much of
+ * the reading shows.
  */
 data class MainUiState(
     val birthDate: LocalDate? = null,
@@ -21,6 +22,6 @@ data class MainUiState(
     val age: Period? = null,
     val horoscope: Horoscope? = null,
     val isLoading: Boolean = false,
-    val error: String? = null,
+    val isError: Boolean = false,
     val readingLength: ReadingLength = ReadingLength.FULL,
 )

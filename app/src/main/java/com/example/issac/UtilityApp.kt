@@ -15,6 +15,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import com.example.issac.ui.main.MainScreen
 import com.example.issac.ui.settings.SettingsScreen
 
@@ -31,13 +32,13 @@ fun UtilityApp() {
                     selected = currentTab == Tab.Today,
                     onClick = { currentTab = Tab.Today },
                     icon = { Icon(Icons.Filled.Star, contentDescription = null) },
-                    label = { Text("Today") }
+                    label = { Text(stringResource(R.string.nav_today)) }
                 )
                 NavigationBarItem(
                     selected = currentTab == Tab.Settings,
                     onClick = { currentTab = Tab.Settings },
                     icon = { Icon(Icons.Filled.Settings, contentDescription = null) },
-                    label = { Text("Settings") }
+                    label = { Text(stringResource(R.string.nav_settings)) }
                 )
             }
         }

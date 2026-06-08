@@ -1,3 +1,28 @@
 <resources>
-    <string name="app_name">issac</string>
+    <string name="app_name">Daily Star</string>
+
+    <!-- Bottom navigation -->
+    <string name="nav_today">Today</string>
+    <string name="nav_settings">Settings</string>
+
+    <!-- Today screen -->
+    <string name="select_birth_date">Select Birth Date</string>
+    <string name="change_date">Change Date</string>
+    <string name="action_ok">OK</string>
+    <string name="action_cancel">Cancel</string>
+    <string name="destiny_title">Your Destiny</string>
+    <string name="birth_date_label">Birth Date: %1$s</string>
+
+    <!-- Today screen components -->
+    <string name="zodiac_sign_caption">Zodiac Sign</string>
+    <string name="age_format">Age: %1$d years, %2$d months, %3$d days</string>
+    <string name="todays_reading">Today\'s Reading</string>
+    <string name="horoscope_error">Couldn\'t load today\'s reading. Check your connection and try again.</string>
+
+    <!-- Settings screen -->
+    <string name="settings_title">Settings</string>
+    <string name="reading_length_title">Reading length</string>
+    <string name="reading_length_description">How much of today\'s horoscope to show on the Today screen.</string>
+    <string name="reading_length_short">Short</string>
+    <string name="reading_length_full">Full</string>
 </resources>

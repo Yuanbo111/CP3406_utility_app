@@ -65,7 +65,7 @@ class MainViewModel @Inject constructor(
                 age = Period.between(birthDate, LocalDate.now()),
                 horoscope = null,
                 isLoading = true,
-                error = null,
+                isError = false,
             )
         }
 
@@ -78,14 +78,10 @@ class MainViewModel @Inject constructor(
             _uiState.update { state ->
                 result.fold(
                     onSuccess = { horoscope ->
-                        state.copy(horoscope = horoscope, isLoading = false, error = null)
+                        state.copy(horoscope = horoscope, isLoading = false, isError = false)
                     },
                     onFailure = {
-                        state.copy(
-                            horoscope = null,
-                            isLoading = false,
-                            error = "Couldn't load today's reading. Check your connection and try again.",
-                        )
+                        state.copy(horoscope = null, isLoading = false, isError = true)
                     },
                 )
             }

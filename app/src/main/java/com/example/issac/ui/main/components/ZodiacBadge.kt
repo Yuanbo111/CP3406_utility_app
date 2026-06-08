@@ -7,8 +7,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
+import com.example.issac.R
 import com.example.issac.domain.model.Zodiac
 import com.example.issac.ui.theme.IssacTheme
 
@@ -27,7 +29,7 @@ fun ZodiacBadge(
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Text(
-            text = "Zodiac Sign",
+            text = stringResource(R.string.zodiac_sign_caption),
             fontSize = 14.sp,
             color = Color.Gray,
         )

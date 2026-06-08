@@ -14,10 +14,12 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.example.issac.R
 import com.example.issac.data.settings.ReadingLength
 import com.example.issac.ui.theme.IssacTheme
 
@@ -48,15 +50,15 @@ private fun SettingsScreenContent(
             .padding(24.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
-        Text(text = "Settings", style = MaterialTheme.typography.headlineSmall)
+        Text(text = stringResource(R.string.settings_title), style = MaterialTheme.typography.headlineSmall)
 
         Text(
-            text = "Reading length",
+            text = stringResource(R.string.reading_length_title),
             style = MaterialTheme.typography.titleMedium,
             modifier = Modifier.padding(top = 16.dp),
         )
         Text(
-            text = "How much of today's horoscope to show on the Today screen.",
+            text = stringResource(R.string.reading_length_description),
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
@@ -68,7 +70,7 @@ private fun SettingsScreenContent(
                     onClick = { onReadingLengthChange(length) },
                     shape = SegmentedButtonDefaults.itemShape(index, ReadingLength.entries.size),
                 ) {
-                    Text(length.label)
+                    Text(stringResource(length.labelRes))
                 }
             }
         }

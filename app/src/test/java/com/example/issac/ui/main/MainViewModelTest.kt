@@ -14,8 +14,8 @@ import kotlinx.coroutines.test.setMain
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
-import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import java.io.IOException
@@ -56,7 +56,7 @@ class MainViewModelTest {
         assertNull(state.age)
         assertNull(state.horoscope)
         assertFalse(state.isLoading)
-        assertNull(state.error)
+        assertFalse(state.isError)
     }
 
     @Test
@@ -81,7 +81,7 @@ class MainViewModelTest {
         val state = viewModel.uiState.value
         assertFalse(state.isLoading)
         assertNull(state.horoscope)
-        assertNotNull(state.error)
+        assertTrue(state.isError)
     }
 
     @Test

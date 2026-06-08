@@ -10,10 +10,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.issac.R
 import com.example.issac.data.settings.ReadingLength
 import com.example.issac.domain.model.Horoscope
 import com.example.issac.ui.theme.IssacTheme
@@ -21,7 +23,7 @@ import java.time.LocalDate
 
 /**
  * Shows today's reading under a small caption, switching between three states:
- * a spinner while [isLoading], an error message when [error] is set, or the
+ * a spinner while [isLoading], an error message when [isError] is true, or the
  * [horoscope] text once loaded. [readingLength] controls how much of the text
  * is shown. Stateless and previewable in every state.
  */
@@ -29,7 +31,7 @@ import java.time.LocalDate
 fun HoroscopeCard(
     isLoading: Boolean,
     horoscope: Horoscope?,
-    error: String?,
+    isError: Boolean,
     readingLength: ReadingLength,
     modifier: Modifier = Modifier,
 ) {
@@ -37,13 +39,13 @@ fun HoroscopeCard(
         modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Text(text = "Today's Reading", fontSize = 14.sp, color = Color.Gray)
+        Text(text = stringResource(R.string.todays_reading), fontSize = 14.sp, color = Color.Gray)
         Spacer(modifier = Modifier.height(8.dp))
         when {
             isLoading -> CircularProgressIndicator(modifier = Modifier.padding(8.dp))
 
-            error != null -> Text(
-                text = error,
+            isError -> Text(
+                text = stringResource(R.string.horoscope_error),
                 fontSize = 14.sp,
                 color = Color(0xFFB00020),
                 textAlign = TextAlign.Center,
@@ -69,7 +71,7 @@ private fun HoroscopeCardLoadedPreview() {
                 date = LocalDate.now(),
                 text = "A calm, productive day. Tackle the small tasks first.",
             ),
-            error = null,
+            isError = false,
             readingLength = ReadingLength.FULL,
         )
     }
@@ -82,7 +84,7 @@ private fun HoroscopeCardLoadingPreview() {
         HoroscopeCard(
             isLoading = true,
             horoscope = null,
-            error = null,
+            isError = false,
             readingLength = ReadingLength.FULL,
         )
     }
@@ -95,7 +97,7 @@ private fun HoroscopeCardErrorPreview() {
         HoroscopeCard(
             isLoading = false,
             horoscope = null,
-            error = "Couldn't load today's reading. Check your connection and try again.",
+            isError = true,
             readingLength = ReadingLength.FULL,
         )
     }

@@ -3,9 +3,11 @@ package com.example.issac.ui.main.components
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
+import com.example.issac.R
 import com.example.issac.ui.theme.IssacTheme
 import java.time.Period
 
@@ -20,7 +22,7 @@ fun AgeCard(
     modifier: Modifier = Modifier,
 ) {
     Text(
-        text = "Age: ${age.years} years, ${age.months} months, ${age.days} days",
+        text = stringResource(R.string.age_format, age.years, age.months, age.days),
         fontSize = 18.sp,
         textAlign = TextAlign.Center,
         modifier = modifier,
