@@ -9,12 +9,16 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.Button
@@ -76,6 +80,7 @@ import java.time.Period
 @Composable
 fun MainScreen(
     modifier: Modifier = Modifier,
+    contentPadding: PaddingValues = PaddingValues(0.dp),
     viewModel: MainViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -83,6 +88,7 @@ fun MainScreen(
 
     MainScreenContent(
         modifier = modifier,
+        contentPadding = contentPadding,
         uiState = uiState,
         showDatePicker = showDatePicker,
         onDateSelected = viewModel::onBirthDateSelected,
@@ -96,6 +102,7 @@ fun MainScreen(
 @Composable
 private fun MainScreenContent(
     modifier: Modifier = Modifier,
+    contentPadding: PaddingValues = PaddingValues(0.dp),
     uiState: MainUiState,
     showDatePicker: Boolean,
     onDateSelected: (Long?) -> Unit,
@@ -161,6 +168,11 @@ private fun MainScreenContent(
         Column(
             modifier = Modifier
                 .fillMaxSize()
+                // The photo behind us extends under the status bar and the
+                // glass bottom bar; the content itself stays below the clock
+                // (status bar inset) and above the bar (contentPadding).
+                .padding(contentPadding)
+                .windowInsetsPadding(WindowInsets.statusBars)
                 .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
@@ -287,6 +299,7 @@ private fun MainScreenContent(
             onClick = onRefreshBackground,
             modifier = Modifier
                 .align(Alignment.TopEnd)
+                .windowInsetsPadding(WindowInsets.statusBars)
                 .padding(8.dp),
         ) {
             // Crossfade swaps the refresh icon and the spinner smoothly.

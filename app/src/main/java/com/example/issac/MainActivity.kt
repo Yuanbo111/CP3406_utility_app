@@ -29,7 +29,7 @@ class MainActivity : ComponentActivity() {
                 ThemeMode.DARK -> true
             }
             IssacTheme(darkTheme = darkTheme) {
-                UtilityApp()
+                UtilityApp(darkTheme = darkTheme)
             }
         }
     }

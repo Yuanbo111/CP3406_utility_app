@@ -2,9 +2,12 @@ package com.example.issac.ui.settings
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SegmentedButton
@@ -53,6 +56,9 @@ private fun SettingsScreenContent(
     Column(
         modifier = modifier
             .fillMaxSize()
+            // The window is edge-to-edge, so keep the content below the
+            // status bar's clock and icons.
+            .windowInsetsPadding(WindowInsets.statusBars)
             .padding(24.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
