@@ -1,5 +1,10 @@
 package com.example.issac.ui.main
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.Crossfade
+import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.slideInVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -48,6 +53,9 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
+import coil3.compose.LocalPlatformContext
+import coil3.request.ImageRequest
+import coil3.request.crossfade
 import com.example.issac.R
 import com.example.issac.domain.model.Horoscope
 import com.example.issac.domain.model.Zodiac
@@ -102,7 +110,11 @@ private fun MainScreenContent(
         // 2. The NASA space photo fetched from the API, layered over the gradient.
         if (uiState.backgroundImageUrl != null) {
             AsyncImage(
-                model = uiState.backgroundImageUrl,
+                model = ImageRequest.Builder(LocalPlatformContext.current)
+                    .data(uiState.backgroundImageUrl)
+                    // Each new photo fades in over the gradient instead of popping.
+                    .crossfade(600)
+                    .build(),
                 contentDescription = null,
                 modifier = Modifier.fillMaxSize(),
                 contentScale = ContentScale.Crop,
@@ -181,47 +193,57 @@ private fun MainScreenContent(
             val birthDate = uiState.birthDate
             val zodiac = uiState.zodiac
             val age = uiState.age
-            if (birthDate != null && zodiac != null && age != null) {
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
-                    colors = CardDefaults.cardColors(
-                        // A translucent themed surface over the hero image:
-                        // near-white in light mode, dark in dark mode. Text colour
-                        // follows automatically via onSurface.
-                        containerColor = MaterialTheme.colorScheme.surfaceContainer.copy(alpha = 0.95f),
-                        contentColor = MaterialTheme.colorScheme.onSurface,
-                    ),
-                ) {
-                    Column(
-                        modifier = Modifier.padding(24.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally,
+            // The card fades in and rises when the first date is picked, then
+            // animateContentSize grows it smoothly as the horoscope arrives or
+            // the reading length changes.
+            AnimatedVisibility(
+                visible = birthDate != null && zodiac != null && age != null,
+                enter = fadeIn() + slideInVertically(initialOffsetY = { it / 3 }),
+            ) {
+                if (birthDate != null && zodiac != null && age != null) {
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .animateContentSize(),
+                        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
+                        colors = CardDefaults.cardColors(
+                            // A translucent themed surface over the hero image:
+                            // near-white in light mode, dark in dark mode. Text colour
+                            // follows automatically via onSurface.
+                            containerColor = MaterialTheme.colorScheme.surfaceContainer.copy(alpha = 0.95f),
+                            contentColor = MaterialTheme.colorScheme.onSurface,
+                        ),
                     ) {
-                        Text(
-                            text = stringResource(R.string.destiny_title),
-                            fontSize = 22.sp,
-                            color = MaterialTheme.colorScheme.onSurface,
-                            modifier = Modifier.padding(bottom = 12.dp),
-                        )
-                        Text(text = stringResource(R.string.birth_date_label, birthDate), fontSize = 16.sp)
-                        HorizontalDivider(
-                            modifier = Modifier.padding(vertical = 12.dp),
-                            color = MaterialTheme.colorScheme.outlineVariant,
-                        )
-                        AgeCard(age = age)
-                        Spacer(modifier = Modifier.height(16.dp))
-                        ZodiacBadge(zodiac = zodiac)
+                        Column(
+                            modifier = Modifier.padding(24.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                        ) {
+                            Text(
+                                text = stringResource(R.string.destiny_title),
+                                fontSize = 22.sp,
+                                color = MaterialTheme.colorScheme.onSurface,
+                                modifier = Modifier.padding(bottom = 12.dp),
+                            )
+                            Text(text = stringResource(R.string.birth_date_label, birthDate), fontSize = 16.sp)
+                            HorizontalDivider(
+                                modifier = Modifier.padding(vertical = 12.dp),
+                                color = MaterialTheme.colorScheme.outlineVariant,
+                            )
+                            AgeCard(age = age)
+                            Spacer(modifier = Modifier.height(16.dp))
+                            ZodiacBadge(zodiac = zodiac)
 
-                        HorizontalDivider(
-                            modifier = Modifier.padding(vertical = 12.dp),
-                            color = MaterialTheme.colorScheme.outlineVariant,
-                        )
-                        HoroscopeCard(
-                            isLoading = uiState.isLoading,
-                            horoscope = uiState.horoscope,
-                            isError = uiState.isError,
-                            readingLength = uiState.readingLength,
-                        )
+                            HorizontalDivider(
+                                modifier = Modifier.padding(vertical = 12.dp),
+                                color = MaterialTheme.colorScheme.outlineVariant,
+                            )
+                            HoroscopeCard(
+                                isLoading = uiState.isLoading,
+                                horoscope = uiState.horoscope,
+                                isError = uiState.isError,
+                                readingLength = uiState.readingLength,
+                            )
+                        }
                     }
                 }
             }
@@ -234,18 +256,21 @@ private fun MainScreenContent(
                 .align(Alignment.TopEnd)
                 .padding(8.dp),
         ) {
-            if (uiState.isBackgroundLoading) {
-                CircularProgressIndicator(
-                    modifier = Modifier.size(24.dp),
-                    color = Color.White,
-                    strokeWidth = 2.dp,
-                )
-            } else {
-                Icon(
-                    imageVector = Icons.Filled.Refresh,
-                    contentDescription = stringResource(R.string.shuffle_background),
-                    tint = Color.White,
-                )
+            // Crossfade swaps the refresh icon and the spinner smoothly.
+            Crossfade(targetState = uiState.isBackgroundLoading, label = "shuffle") { loading ->
+                if (loading) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(24.dp),
+                        color = Color.White,
+                        strokeWidth = 2.dp,
+                    )
+                } else {
+                    Icon(
+                        imageVector = Icons.Filled.Refresh,
+                        contentDescription = stringResource(R.string.shuffle_background),
+                        tint = Color.White,
+                    )
+                }
             }
         }
     }

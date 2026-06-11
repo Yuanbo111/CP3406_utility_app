@@ -1,5 +1,6 @@
 package com.example.issac.ui.main.components
 
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
@@ -45,25 +46,42 @@ fun HoroscopeCard(
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
         Spacer(modifier = Modifier.height(8.dp))
-        when {
-            isLoading -> CircularProgressIndicator(modifier = Modifier.padding(8.dp))
+        // AnimatedContent crossfades (and resizes) between the three states
+        // instead of snapping, e.g. spinner smoothly becomes the reading.
+        AnimatedContent(
+            targetState = when {
+                isLoading -> ReadingState.LOADING
+                isError -> ReadingState.ERROR
+                else -> ReadingState.LOADED
+            },
+            label = "reading state",
+        ) { state ->
+            when (state) {
+                ReadingState.LOADING ->
+                    CircularProgressIndicator(modifier = Modifier.padding(8.dp))
 
-            isError -> Text(
-                text = stringResource(R.string.horoscope_error),
-                fontSize = 14.sp,
-                color = MaterialTheme.colorScheme.error,
-                textAlign = TextAlign.Center,
-            )
+                ReadingState.ERROR -> Text(
+                    text = stringResource(R.string.horoscope_error),
+                    fontSize = 14.sp,
+                    color = MaterialTheme.colorScheme.error,
+                    textAlign = TextAlign.Center,
+                )
 
-            horoscope != null -> Text(
-                text = readingLength.format(horoscope.text),
-                fontSize = 15.sp,
-                color = MaterialTheme.colorScheme.onSurface,
-                textAlign = TextAlign.Center,
-            )
+                ReadingState.LOADED -> if (horoscope != null) {
+                    Text(
+                        text = readingLength.format(horoscope.text),
+                        fontSize = 15.sp,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        textAlign = TextAlign.Center,
+                    )
+                }
+            }
         }
     }
 }
+
+/** Which of the card's three states is showing — the key AnimatedContent animates on. */
+private enum class ReadingState { LOADING, ERROR, LOADED }
 
 @Preview(showBackground = true, name = "Loaded")
 @Composable
