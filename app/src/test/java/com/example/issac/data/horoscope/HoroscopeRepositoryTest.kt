@@ -57,6 +57,22 @@ class HoroscopeRepositoryTest {
 
         assertTrue(result.isFailure)
     }
+
+    @Test
+    fun `rejects a corrupted reading instead of passing it to the UI`() = runBlocking {
+        // Trimmed-down version of real garbage the live API returned once.
+        val garbage = "_GPU heck  ((ryn ,raki Req  cedes,\n,\n ,,, [,. ,\n,, � ,,  ,( ,,,,\n,,\n,\n[\n _ .,[., \n,,, , ,   ,  \n , -deals \n,,  not, ( ,"
+        val api = FakeHoroscopeApi(
+            response = HoroscopeResponse(
+                HoroscopeData("2026-06-11", "daily", "Pisces", garbage),
+            ),
+        )
+        val repository = HoroscopeRepository(api)
+
+        val result = repository.getDailyHoroscope(Zodiac.PISCES)
+
+        assertTrue(result.isFailure)
+    }
 }
 
 /** Test double for [HoroscopeApi] — returns a canned response or throws, no real network. */

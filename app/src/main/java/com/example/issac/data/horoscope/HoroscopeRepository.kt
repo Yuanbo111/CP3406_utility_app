@@ -23,9 +23,13 @@ class HoroscopeRepository @Inject constructor(
     suspend fun getDailyHoroscope(zodiac: Zodiac): Result<Horoscope> {
         return try {
             val response = api.getDailyHoroscope(sign = zodiac.displayName)
+            val text = response.data.horoscope
+            if (!looksLikeProse(text)) {
+                return Result.failure(IllegalStateException("API returned a corrupted reading"))
+            }
             val horoscope = Horoscope(
                 date = LocalDate.parse(response.data.date),
-                text = response.data.horoscope,
+                text = text,
             )
             Result.success(horoscope)
         } catch (e: CancellationException) {
@@ -33,5 +37,18 @@ class HoroscopeRepository @Inject constructor(
         } catch (e: Exception) {
             Result.failure(e)
         }
+    }
+
+    /**
+     * The API occasionally returns corrupted, machine-generated gibberish
+     * (observed live: a "reading" that was mostly commas, symbols and �
+     * characters). Real prose is mostly letters, so reject anything that is too
+     * short or where letters don't clearly dominate — better to show the error
+     * state than nonsense.
+     */
+    private fun looksLikeProse(text: String): Boolean {
+        if (text.length < 20 || '�' in text) return false
+        val letters = text.count { it.isLetter() }
+        return letters.toDouble() / text.length > 0.6
     }
 }
