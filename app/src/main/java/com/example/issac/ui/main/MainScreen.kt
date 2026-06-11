@@ -64,9 +64,11 @@ import com.example.issac.domain.model.Zodiac
 import com.example.issac.ui.main.components.AgeCard
 import com.example.issac.ui.main.components.HoroscopeCard
 import com.example.issac.ui.main.components.ZodiacBadge
+import com.example.issac.ui.theme.GlassDark
 import com.example.issac.ui.theme.IssacTheme
 import com.example.issac.ui.theme.NightGradientBottom
 import com.example.issac.ui.theme.NightGradientTop
+import com.example.issac.ui.theme.OnGlass
 import com.example.issac.ui.theme.StarGold
 import java.time.LocalDate
 import java.time.Period
@@ -235,11 +237,13 @@ private fun MainScreenContent(
                             .animateContentSize(),
                         elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
                         colors = CardDefaults.cardColors(
-                            // A translucent themed surface over the hero image:
-                            // near-white in light mode, dark in dark mode. Text colour
-                            // follows automatically via onSurface.
-                            containerColor = MaterialTheme.colorScheme.surfaceContainer.copy(alpha = 0.95f),
-                            contentColor = MaterialTheme.colorScheme.onSurface,
+                            // A faint dark "glass" over the photo. Fixed colours
+                            // (like StarGold) rather than theme roles, because the
+                            // card always sits on the photo: the photo shows
+                            // through the veil, and the light text stays readable
+                            // in both themes thanks to the scrim underneath.
+                            containerColor = GlassDark,
+                            contentColor = OnGlass,
                         ),
                     ) {
                         Column(
@@ -249,21 +253,22 @@ private fun MainScreenContent(
                             Text(
                                 text = stringResource(R.string.destiny_title),
                                 fontSize = 22.sp,
-                                color = MaterialTheme.colorScheme.onSurface,
                                 modifier = Modifier.padding(bottom = 12.dp),
                             )
                             Text(text = stringResource(R.string.birth_date_label, birthDate), fontSize = 16.sp)
                             HorizontalDivider(
                                 modifier = Modifier.padding(vertical = 12.dp),
-                                color = MaterialTheme.colorScheme.outlineVariant,
+                                color = OnGlass.copy(alpha = 0.3f),
                             )
                             AgeCard(age = age)
                             Spacer(modifier = Modifier.height(16.dp))
-                            ZodiacBadge(zodiac = zodiac)
+                            // Gold glyph (not theme primary): indigo would vanish
+                            // against the dark glass in light theme.
+                            ZodiacBadge(zodiac = zodiac, color = StarGold)
 
                             HorizontalDivider(
                                 modifier = Modifier.padding(vertical = 12.dp),
-                                color = MaterialTheme.colorScheme.outlineVariant,
+                                color = OnGlass.copy(alpha = 0.3f),
                             )
                             HoroscopeCard(
                                 isLoading = uiState.isLoading,

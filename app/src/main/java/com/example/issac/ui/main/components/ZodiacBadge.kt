@@ -1,6 +1,7 @@
 package com.example.issac.ui.main.components
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -29,10 +30,12 @@ fun ZodiacBadge(
         modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
+        // Inherits the parent surface's content colour (the glass card sets a
+        // light one), slightly faded to read as a caption.
         Text(
             text = stringResource(R.string.zodiac_sign_caption),
             fontSize = 14.sp,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            color = LocalContentColor.current.copy(alpha = 0.75f),
         )
         Text(
             text = "${zodiac.symbol} ${zodiac.displayName}",

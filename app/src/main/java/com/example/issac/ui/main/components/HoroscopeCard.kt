@@ -6,7 +6,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -19,6 +19,7 @@ import androidx.compose.ui.unit.sp
 import com.example.issac.R
 import com.example.issac.data.settings.ReadingLength
 import com.example.issac.domain.model.Horoscope
+import com.example.issac.ui.theme.GlassError
 import com.example.issac.ui.theme.IssacTheme
 import java.time.LocalDate
 
@@ -40,10 +41,12 @@ fun HoroscopeCard(
         modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
+        // Inherits the parent surface's content colour (the glass card sets a
+        // light one), slightly faded to read as a caption.
         Text(
             text = stringResource(R.string.todays_reading),
             fontSize = 14.sp,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            color = LocalContentColor.current.copy(alpha = 0.75f),
         )
         Spacer(modifier = Modifier.height(8.dp))
         // AnimatedContent crossfades (and resizes) between the three states
@@ -57,13 +60,17 @@ fun HoroscopeCard(
             label = "reading state",
         ) { state ->
             when (state) {
-                ReadingState.LOADING ->
-                    CircularProgressIndicator(modifier = Modifier.padding(8.dp))
+                ReadingState.LOADING -> CircularProgressIndicator(
+                    modifier = Modifier.padding(8.dp),
+                    color = LocalContentColor.current,
+                )
 
                 ReadingState.ERROR -> Text(
                     text = stringResource(R.string.horoscope_error),
                     fontSize = 14.sp,
-                    color = MaterialTheme.colorScheme.error,
+                    // Fixed soft red: the theme's error role is too dark to read
+                    // on the dark glass card in light theme.
+                    color = GlassError,
                     textAlign = TextAlign.Center,
                 )
 
@@ -71,7 +78,6 @@ fun HoroscopeCard(
                     Text(
                         text = readingLength.format(horoscope.text),
                         fontSize = 15.sp,
-                        color = MaterialTheme.colorScheme.onSurface,
                         textAlign = TextAlign.Center,
                     )
                 }

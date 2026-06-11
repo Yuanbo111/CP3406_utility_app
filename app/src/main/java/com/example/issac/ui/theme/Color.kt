@@ -37,3 +37,10 @@ val StarGold = Color(0xFFF2C94C)
 // and scrim. Always dark in both themes so the gold title stays readable.
 val NightGradientTop = Color(0xFF222C63)
 val NightGradientBottom = Color(0xFF0A0B14)
+
+// "Glass" destiny-card colours — the card sits directly on the photo, so like
+// StarGold these are fixed rather than theme roles: a faint dark veil that the
+// photo shows through, with light text that stays readable in both themes.
+val GlassDark = Color(0x59000000)  // 35% black
+val OnGlass = Color(0xFFF4F3F9)    // near-white text on the glass
+val GlassError = Color(0xFFFFB4AB) // soft light red, readable on the dark glass
