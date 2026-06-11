@@ -32,3 +32,8 @@ val LightSurface = Color(0xFFFDFBFF)
 // Fixed bright gold for the hero title, which always sits on the dark
 // background image (so it can't follow the light/dark theme tertiary).
 val StarGold = Color(0xFFF2C94C)
+
+// Hero night-sky gradient — the Today backdrop, drawn behind the NASA photo
+// and scrim. Always dark in both themes so the gold title stays readable.
+val NightGradientTop = Color(0xFF222C63)
+val NightGradientBottom = Color(0xFF0A0B14)

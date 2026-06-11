@@ -2,6 +2,7 @@ package com.example.issac.ui.main
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.issac.data.apod.ApodRepository
 import com.example.issac.data.horoscope.HoroscopeRepository
 import com.example.issac.data.settings.SettingsRepository
 import com.example.issac.domain.model.Zodiac
@@ -31,6 +32,7 @@ import javax.inject.Inject
 class MainViewModel @Inject constructor(
     private val horoscopeRepository: HoroscopeRepository,
     private val settingsRepository: SettingsRepository,
+    private val apodRepository: ApodRepository,
 ) : ViewModel() {
 
     private val determineZodiac = DetermineZodiacUseCase()
@@ -44,6 +46,7 @@ class MainViewModel @Inject constructor(
                 _uiState.update { it.copy(readingLength = length) }
             }
         }
+        loadBackground()
     }
 
     /**
@@ -82,6 +85,26 @@ class MainViewModel @Inject constructor(
                     },
                     onFailure = {
                         state.copy(horoscope = null, isLoading = false, isError = true)
+                    },
+                )
+            }
+        }
+    }
+
+    /** Fetches a fresh random NASA space photo for the background. */
+    fun refreshBackground() = loadBackground()
+
+    private fun loadBackground() {
+        viewModelScope.launch {
+            _uiState.update { it.copy(isBackgroundLoading = true) }
+            val result = apodRepository.getRandomImageUrl()
+            _uiState.update { state ->
+                result.fold(
+                    onSuccess = { url ->
+                        state.copy(backgroundImageUrl = url, isBackgroundLoading = false)
+                    },
+                    onFailure = {
+                        state.copy(isBackgroundLoading = false) // keep the gradient
                     },
                 )
             }

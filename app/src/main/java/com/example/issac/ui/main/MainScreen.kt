@@ -1,6 +1,5 @@
 package com.example.issac.ui.main
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -10,14 +9,21 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -29,15 +35,19 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import coil3.compose.AsyncImage
 import com.example.issac.R
 import com.example.issac.domain.model.Horoscope
 import com.example.issac.domain.model.Zodiac
@@ -45,6 +55,8 @@ import com.example.issac.ui.main.components.AgeCard
 import com.example.issac.ui.main.components.HoroscopeCard
 import com.example.issac.ui.main.components.ZodiacBadge
 import com.example.issac.ui.theme.IssacTheme
+import com.example.issac.ui.theme.NightGradientBottom
+import com.example.issac.ui.theme.NightGradientTop
 import com.example.issac.ui.theme.StarGold
 import java.time.LocalDate
 import java.time.Period
@@ -63,6 +75,7 @@ fun MainScreen(
         showDatePicker = showDatePicker,
         onDateSelected = viewModel::onBirthDateSelected,
         onShowDatePicker = { showDatePicker = it },
+        onRefreshBackground = viewModel::refreshBackground,
     )
 }
 
@@ -74,21 +87,33 @@ private fun MainScreenContent(
     showDatePicker: Boolean,
     onDateSelected: (Long?) -> Unit,
     onShowDatePicker: (Boolean) -> Unit,
+    onRefreshBackground: () -> Unit,
 ) {
     val datePickerState = rememberDatePickerState()
 
     Box(modifier = modifier.fillMaxSize()) {
-        Image(
-            painter = painterResource(id = R.drawable.background_zodiac),
-            contentDescription = null,
-            modifier = Modifier.fillMaxSize(),
-            contentScale = ContentScale.Crop,
-        )
-
+        // 1. Always-present night-sky gradient — the offline / loading fallback.
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color.Black.copy(alpha = 0.3f)),
+                .background(Brush.verticalGradient(listOf(NightGradientTop, NightGradientBottom))),
+        )
+
+        // 2. The NASA space photo fetched from the API, layered over the gradient.
+        if (uiState.backgroundImageUrl != null) {
+            AsyncImage(
+                model = uiState.backgroundImageUrl,
+                contentDescription = null,
+                modifier = Modifier.fillMaxSize(),
+                contentScale = ContentScale.Crop,
+            )
+        }
+
+        // 3. Scrim so the title and card stay legible over any photo.
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.Black.copy(alpha = 0.4f)),
         )
 
         Column(
@@ -100,8 +125,18 @@ private fun MainScreenContent(
         ) {
             Text(
                 text = stringResource(R.string.app_name),
-                fontSize = 28.sp,
+                fontSize = 36.sp,
+                fontWeight = FontWeight.Bold,
                 color = StarGold,
+                // A soft dark shadow lifts the title cleanly off the background
+                // photo so it stays vivid in both themes.
+                style = LocalTextStyle.current.copy(
+                    shadow = Shadow(
+                        color = Color.Black.copy(alpha = 0.7f),
+                        offset = Offset(0f, 3f),
+                        blurRadius = 12f,
+                    ),
+                ),
                 modifier = Modifier.padding(bottom = 32.dp),
             )
 
@@ -191,6 +226,28 @@ private fun MainScreenContent(
                 }
             }
         }
+
+        // 4. Shuffle button — pulls a different photo from NASA on demand.
+        IconButton(
+            onClick = onRefreshBackground,
+            modifier = Modifier
+                .align(Alignment.TopEnd)
+                .padding(8.dp),
+        ) {
+            if (uiState.isBackgroundLoading) {
+                CircularProgressIndicator(
+                    modifier = Modifier.size(24.dp),
+                    color = Color.White,
+                    strokeWidth = 2.dp,
+                )
+            } else {
+                Icon(
+                    imageVector = Icons.Filled.Refresh,
+                    contentDescription = stringResource(R.string.shuffle_background),
+                    tint = Color.White,
+                )
+            }
+        }
     }
 }
 
@@ -212,6 +269,7 @@ private fun MainScreenPreview() {
             showDatePicker = false,
             onDateSelected = {},
             onShowDatePicker = {},
+            onRefreshBackground = {},
         )
     }
 }

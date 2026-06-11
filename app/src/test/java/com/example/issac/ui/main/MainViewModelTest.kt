@@ -1,5 +1,8 @@
 package com.example.issac.ui.main
 
+import com.example.issac.data.apod.ApodApi
+import com.example.issac.data.apod.ApodRepository
+import com.example.issac.data.apod.dto.ApodResponse
 import com.example.issac.data.horoscope.HoroscopeApi
 import com.example.issac.data.horoscope.HoroscopeRepository
 import com.example.issac.data.horoscope.dto.HoroscopeData
@@ -43,6 +46,7 @@ class MainViewModelTest {
     ) = MainViewModel(
         HoroscopeRepository(FakeHoroscopeApi(text, error)),
         SettingsRepository(),
+        ApodRepository(FakeApodApi()),
     )
 
     private fun millisFor(date: LocalDate): Long =
@@ -103,4 +107,10 @@ private class FakeHoroscopeApi(
         error?.let { throw it }
         return HoroscopeResponse(HoroscopeData("2026-06-04", "daily", sign, text))
     }
+}
+
+/** Test double for [ApodApi] — returns one canned image, no real network. */
+private class FakeApodApi : ApodApi {
+    override suspend fun getRandomPictures(count: Int, apiKey: String): List<ApodResponse> =
+        listOf(ApodResponse(title = "Test", url = "https://example.com/star.jpg", mediaType = "image"))
 }

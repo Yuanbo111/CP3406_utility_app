@@ -15,6 +15,7 @@
 
     <!-- Today screen components -->
     <string name="zodiac_sign_caption">Zodiac Sign</string>
+    <string name="shuffle_background">Shuffle background image</string>
     <string name="age_format">Age: %1$d years, %2$d months, %3$d days</string>
     <string name="todays_reading">Today\'s Reading</string>
     <string name="horoscope_error">Couldn\'t load today\'s reading. Check your connection and try again.</string>

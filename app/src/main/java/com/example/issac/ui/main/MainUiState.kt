@@ -14,7 +14,9 @@ import java.time.Period
  * "no date chosen yet" state. While the horoscope is being fetched [isLoading]
  * is true; on failure [isError] is true and the UI shows the error message.
  * [readingLength] mirrors the user's Settings choice and controls how much of
- * the reading shows.
+ * the reading shows. [backgroundImageUrl] is the NASA space photo behind the
+ * screen (null = show the gradient only); [isBackgroundLoading] is true while a
+ * new one is being fetched.
  */
 data class MainUiState(
     val birthDate: LocalDate? = null,
@@ -24,4 +26,6 @@ data class MainUiState(
     val isLoading: Boolean = false,
     val isError: Boolean = false,
     val readingLength: ReadingLength = ReadingLength.FULL,
+    val backgroundImageUrl: String? = null,
+    val isBackgroundLoading: Boolean = false,
 )
