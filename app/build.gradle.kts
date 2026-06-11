@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
@@ -5,6 +7,16 @@ plugins {
     alias(libs.plugins.hilt)
     alias(libs.plugins.ksp)
 }
+
+// The personal NASA API key lives in local.properties, which is gitignored —
+// secrets must never be committed. Anyone without a key still builds and runs
+// on NASA's shared DEMO_KEY (just with a much lower hourly rate limit).
+val nasaApiKey: String = rootProject.file("local.properties")
+    .takeIf { it.exists() }
+    ?.inputStream()
+    ?.use { stream -> Properties().apply { load(stream) } }
+    ?.getProperty("nasa.apiKey")
+    ?: "DEMO_KEY"
 
 android {
     namespace = "com.example.issac"
@@ -22,6 +34,8 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        buildConfigField("String", "NASA_API_KEY", "\"$nasaApiKey\"")
     }
 
     buildTypes {
@@ -39,6 +53,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 }
 
