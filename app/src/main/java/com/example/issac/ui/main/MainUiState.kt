@@ -16,7 +16,8 @@ import java.time.Period
  * [readingLength] mirrors the user's Settings choice and controls how much of
  * the reading shows. [backgroundImageUrl] is the NASA space photo behind the
  * screen (null = show the gradient only); [isBackgroundLoading] is true while a
- * new one is being fetched.
+ * new one is being fetched. [nextBackgroundImageUrl] is the photo queued for the
+ * next shuffle — the UI pre-downloads it so the swap is instant.
  */
 data class MainUiState(
     val birthDate: LocalDate? = null,
@@ -28,4 +29,5 @@ data class MainUiState(
     val readingLength: ReadingLength = ReadingLength.FULL,
     val backgroundImageUrl: String? = null,
     val isBackgroundLoading: Boolean = false,
+    val nextBackgroundImageUrl: String? = null,
 )

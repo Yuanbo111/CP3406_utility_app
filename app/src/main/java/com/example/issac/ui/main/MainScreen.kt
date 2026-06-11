@@ -34,6 +34,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -52,6 +53,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import coil3.SingletonImageLoader
 import coil3.compose.AsyncImage
 import coil3.compose.LocalPlatformContext
 import coil3.request.ImageRequest
@@ -84,6 +86,7 @@ fun MainScreen(
         onDateSelected = viewModel::onBirthDateSelected,
         onShowDatePicker = { showDatePicker = it },
         onRefreshBackground = viewModel::refreshBackground,
+        onBackgroundLoaded = viewModel::onBackgroundImageLoaded,
     )
 }
 
@@ -96,6 +99,7 @@ private fun MainScreenContent(
     onDateSelected: (Long?) -> Unit,
     onShowDatePicker: (Boolean) -> Unit,
     onRefreshBackground: () -> Unit,
+    onBackgroundLoaded: () -> Unit,
 ) {
     val datePickerState = rememberDatePickerState()
 
@@ -108,17 +112,41 @@ private fun MainScreenContent(
         )
 
         // 2. The NASA space photo fetched from the API, layered over the gradient.
-        if (uiState.backgroundImageUrl != null) {
+        val backgroundUrl = uiState.backgroundImageUrl
+        if (backgroundUrl != null) {
+            // Remember the previous photo's URL: it is still in Coil's memory
+            // cache, so the new request can keep showing it as the placeholder
+            // while the next photo downloads, instead of dropping back to the
+            // gradient for the whole download.
+            var previousUrl by remember { mutableStateOf<String?>(null) }
+            val placeholderKey = remember(backgroundUrl) {
+                previousUrl.also { previousUrl = backgroundUrl }
+            }
             AsyncImage(
                 model = ImageRequest.Builder(LocalPlatformContext.current)
-                    .data(uiState.backgroundImageUrl)
-                    // Each new photo fades in over the gradient instead of popping.
+                    .data(backgroundUrl)
+                    .placeholderMemoryCacheKey(placeholderKey)
+                    // Each new photo fades in over the previous one instead of popping.
                     .crossfade(600)
                     .build(),
                 contentDescription = null,
+                onSuccess = { onBackgroundLoaded() },
+                onError = { onBackgroundLoaded() },
                 modifier = Modifier.fillMaxSize(),
                 contentScale = ContentScale.Crop,
             )
+        }
+
+        // Quietly download the next queued photo into Coil's cache, so the next
+        // shuffle swaps instantly instead of waiting on NASA's image servers.
+        val nextUrl = uiState.nextBackgroundImageUrl
+        val platformContext = LocalPlatformContext.current
+        LaunchedEffect(nextUrl) {
+            if (nextUrl != null) {
+                SingletonImageLoader.get(platformContext).enqueue(
+                    ImageRequest.Builder(platformContext).data(nextUrl).build(),
+                )
+            }
         }
 
         // 3. Scrim so the title and card stay legible over any photo.
@@ -295,6 +323,7 @@ private fun MainScreenPreview() {
             onDateSelected = {},
             onShowDatePicker = {},
             onRefreshBackground = {},
+            onBackgroundLoaded = {},
         )
     }
 }

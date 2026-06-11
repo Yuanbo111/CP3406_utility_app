@@ -40,6 +40,13 @@ class MainViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(MainUiState())
     val uiState: StateFlow<MainUiState> = _uiState.asStateFlow()
 
+    /**
+     * Photos waiting to be shown — one API call pays for several shuffles.
+     * Declared BEFORE the init block: Kotlin runs property initializers and
+     * init blocks top-to-bottom, and init's loadBackground() touches this queue.
+     */
+    private val backgroundQueue = ArrayDeque<String>()
+
     init {
         viewModelScope.launch {
             settingsRepository.readingLength.collect { length ->
@@ -91,23 +98,45 @@ class MainViewModel @Inject constructor(
         }
     }
 
-    /** Fetches a fresh random NASA space photo for the background. */
+    /** Shows the next queued NASA space photo as the background. */
     fun refreshBackground() = loadBackground()
 
     private fun loadBackground() {
         viewModelScope.launch {
             _uiState.update { it.copy(isBackgroundLoading = true) }
-            val result = apodRepository.getRandomImageUrl()
+            if (backgroundQueue.isEmpty()) {
+                apodRepository.getRandomImageUrls()
+                    .onSuccess { urls -> backgroundQueue.addAll(urls) }
+            }
+            val url = backgroundQueue.removeFirstOrNull()
             _uiState.update { state ->
-                result.fold(
-                    onSuccess = { url ->
-                        state.copy(backgroundImageUrl = url, isBackgroundLoading = false)
-                    },
-                    onFailure = {
-                        state.copy(isBackgroundLoading = false) // keep the gradient
-                    },
-                )
+                if (url == null) {
+                    state.copy(isBackgroundLoading = false) // keep the gradient
+                } else {
+                    state.copy(
+                        backgroundImageUrl = url,
+                        // The UI pre-downloads this one so the next shuffle is instant.
+                        nextBackgroundImageUrl = backgroundQueue.firstOrNull(),
+                        // Keep spinning until the photo itself has downloaded — the
+                        // UI reports that via onBackgroundImageLoaded(). If the
+                        // random pick is the photo already showing, stop right away.
+                        isBackgroundLoading = url != state.backgroundImageUrl,
+                    )
+                }
+            }
+            // Top up before the queue runs dry, so there is always a photo ready
+            // to pre-download for the shuffle after this one.
+            if (backgroundQueue.isEmpty()) {
+                apodRepository.getRandomImageUrls().onSuccess { urls ->
+                    backgroundQueue.addAll(urls)
+                    _uiState.update { it.copy(nextBackgroundImageUrl = backgroundQueue.firstOrNull()) }
+                }
             }
         }
+    }
+
+    /** The UI calls this once Coil has finished loading the background photo. */
+    fun onBackgroundImageLoaded() {
+        _uiState.update { it.copy(isBackgroundLoading = false) }
     }
 }
