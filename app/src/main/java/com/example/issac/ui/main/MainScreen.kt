@@ -165,6 +165,22 @@ private fun MainScreenContent(
                 .background(Color.Black.copy(alpha = 0.4f)),
         )
 
+        // 4. Protection gradient: the photo fades into night indigo behind the
+        //    glass bottom bar. Without it, a bright photo burns straight
+        //    through the bar's 45% veil and the "glass" looks like it only
+        //    covers the dark parts of the picture.
+        Box(
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .fillMaxWidth()
+                .height(200.dp)
+                .background(
+                    Brush.verticalGradient(
+                        listOf(Color.Transparent, NightGradientBottom),
+                    ),
+                ),
+        )
+
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -294,7 +310,7 @@ private fun MainScreenContent(
             }
         }
 
-        // 4. Shuffle button — pulls a different photo from NASA on demand.
+        // 5. Shuffle button — pulls a different photo from NASA on demand.
         IconButton(
             onClick = onRefreshBackground,
             modifier = Modifier
