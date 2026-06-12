@@ -33,7 +33,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -53,7 +52,6 @@ import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -197,12 +195,10 @@ private fun MainScreenContent(
         ) {
             Text(
                 text = stringResource(R.string.app_name),
-                fontSize = 36.sp,
-                fontWeight = FontWeight.Bold,
                 color = StarGold,
-                // A soft dark shadow lifts the title cleanly off the background
-                // photo so it stays vivid in both themes.
-                style = LocalTextStyle.current.copy(
+                // The theme's Marcellus display style; a soft dark shadow lifts
+                // the title cleanly off the photo so it stays vivid in both themes.
+                style = MaterialTheme.typography.displaySmall.copy(
                     shadow = Shadow(
                         color = Color.Black.copy(alpha = 0.7f),
                         offset = Offset(0f, 3f),
@@ -282,7 +278,7 @@ private fun MainScreenContent(
                         ) {
                             Text(
                                 text = stringResource(R.string.destiny_title),
-                                fontSize = 22.sp,
+                                style = MaterialTheme.typography.titleLarge,
                                 modifier = Modifier.padding(bottom = 12.dp),
                             )
                             Text(text = stringResource(R.string.birth_date_label, birthDate), fontSize = 16.sp)

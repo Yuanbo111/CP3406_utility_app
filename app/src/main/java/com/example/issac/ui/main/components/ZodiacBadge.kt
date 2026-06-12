@@ -39,7 +39,9 @@ fun ZodiacBadge(
         )
         Text(
             text = "${zodiac.symbol} ${zodiac.displayName}",
-            fontSize = 32.sp,
+            // Theme headline = Marcellus, so the sign name matches the app
+            // title's engraved look. The glyph falls back to the system font.
+            style = MaterialTheme.typography.headlineLarge,
             color = color,
         )
     }
