@@ -48,14 +48,15 @@ fun UtilityApp(darkTheme: Boolean) {
 
     Scaffold(
         bottomBar = {
-            // "Glass" bar in the same language as the destiny card: on Today a
-            // translucent indigo veil lets the NASA photo glow through (the
-            // screen's scrim already keeps it dark enough for the labels);
+            // "Glass" bar in the same language as the destiny card: on Today
+            // the veil is so faint (0.15) that the photo runs full-bleed and
+            // the tabs read as floating buttons — legibility comes from the
+            // bottom protection gradient in MainScreen, not from the veil;
             // on Settings there is only a flat surface behind it, so the bar
             // goes opaque night indigo instead of washing out.
             NavigationBar(
                 containerColor = if (currentTab == Tab.Today) {
-                    NightGradientBottom.copy(alpha = 0.45f)
+                    NightGradientBottom.copy(alpha = 0.15f)
                 } else {
                     NightGradientBottom
                 },
