@@ -11,6 +11,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.time.Instant
@@ -23,10 +24,12 @@ import javax.inject.Inject
  * Owns the Today screen's state. Hilt injects the [HoroscopeRepository] and the
  * shared [SettingsRepository].
  *
- * When the user picks a birth date we compute their age and zodiac immediately,
- * then fetch today's horoscope in the background. The reading-length setting is
- * observed from the repository, so changing it in Settings reformats the reading
- * shown here without re-fetching.
+ * The birth date is reactive end to end: the picker only persists the date via
+ * the repository, and the collector in init reacts to whatever the store emits
+ * — whether that's a fresh pick or the saved date arriving at app launch. Both
+ * paths get age + zodiac computed and today's horoscope fetched. The
+ * reading-length setting is observed the same way, so changing it in Settings
+ * reformats the reading shown here without re-fetching.
  */
 @HiltViewModel
 class MainViewModel @Inject constructor(
@@ -53,19 +56,28 @@ class MainViewModel @Inject constructor(
                 _uiState.update { it.copy(readingLength = length) }
             }
         }
+        viewModelScope.launch {
+            settingsRepository.birthDate.filterNotNull().collect(::onBirthDateChanged)
+        }
         loadBackground()
     }
 
     /**
      * Handles a confirmed date from the picker. Material 3's DatePicker reports
      * UTC-midnight epoch millis, so we read it back in UTC to avoid a day shift.
+     * Only persists — the birthDate collector reacts to the stored value.
      */
     fun onBirthDateSelected(epochMillis: Long?) {
         if (epochMillis == null) return
 
-        val birthDate = Instant.ofEpochMilli(epochMillis)
-            .atZone(ZoneOffset.UTC)
-            .toLocalDate()
+        settingsRepository.setBirthDate(
+            Instant.ofEpochMilli(epochMillis)
+                .atZone(ZoneOffset.UTC)
+                .toLocalDate(),
+        )
+    }
+
+    private fun onBirthDateChanged(birthDate: LocalDate) {
         val zodiac = determineZodiac(birthDate)
 
         _uiState.update { state ->

@@ -7,8 +7,10 @@ import com.example.issac.data.horoscope.HoroscopeApi
 import com.example.issac.data.horoscope.HoroscopeRepository
 import com.example.issac.data.horoscope.dto.HoroscopeData
 import com.example.issac.data.horoscope.dto.HoroscopeResponse
+import com.example.issac.data.settings.FakePreferencesDataStore
 import com.example.issac.data.settings.SettingsRepository
 import com.example.issac.domain.model.Zodiac
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
@@ -28,11 +30,13 @@ import java.time.ZoneOffset
 @OptIn(ExperimentalCoroutinesApi::class)
 class MainViewModelTest {
 
+    private val dispatcher = UnconfinedTestDispatcher()
+
     @Before
     fun setUp() {
         // viewModelScope dispatches on Dispatchers.Main, which doesn't exist in a
         // plain JVM unit test — swap in a test dispatcher that runs eagerly.
-        Dispatchers.setMain(UnconfinedTestDispatcher())
+        Dispatchers.setMain(dispatcher)
     }
 
     @After
@@ -40,17 +44,28 @@ class MainViewModelTest {
         Dispatchers.resetMain()
     }
 
+    private fun settingsRepository() =
+        SettingsRepository(FakePreferencesDataStore(), CoroutineScope(dispatcher))
+
+    // Fake readings must be at least 20 mostly-letter characters, or the
+    // repository's corrupted-reading guard rejects them as garbage.
     private fun viewModelWith(
-        text: String = "A bright day ahead.",
+        text: String = "A calm and bright day ahead.",
         error: Throwable? = null,
+        settings: SettingsRepository = settingsRepository(),
     ) = MainViewModel(
         HoroscopeRepository(FakeHoroscopeApi(text, error)),
-        SettingsRepository(),
+        settings,
         ApodRepository(FakeApodApi()),
     )
 
     private fun millisFor(date: LocalDate): Long =
         date.atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli()
+
+    // The date now travels picker -> DataStore -> repository flow -> ViewModel
+    // collector -> horoscope fetch. Even an eager dispatcher queues the deeper
+    // hops, so tests drain the scheduler before asserting on the final state.
+    private fun awaitIdle() = dispatcher.scheduler.advanceUntilIdle()
 
     @Test
     fun `initial state is empty`() {
@@ -65,14 +80,15 @@ class MainViewModelTest {
 
     @Test
     fun `selecting a date populates zodiac, age and horoscope`() {
-        val viewModel = viewModelWith(text = "A bright Leo day.")
+        val viewModel = viewModelWith(text = "A bright day ahead for you, Leo.")
 
         viewModel.onBirthDateSelected(millisFor(LocalDate.of(1990, 8, 10)))
+        awaitIdle()
 
         val state = viewModel.uiState.value
         assertEquals(LocalDate.of(1990, 8, 10), state.birthDate)
         assertEquals(Zodiac.LEO, state.zodiac)
-        assertEquals("A bright Leo day.", state.horoscope?.text)
+        assertEquals("A bright day ahead for you, Leo.", state.horoscope?.text)
         assertFalse(state.isLoading)
     }
 
@@ -81,6 +97,7 @@ class MainViewModelTest {
         val viewModel = viewModelWith(error = IOException("no network"))
 
         viewModel.onBirthDateSelected(millisFor(LocalDate.of(1990, 8, 10)))
+        awaitIdle()
 
         val state = viewModel.uiState.value
         assertFalse(state.isLoading)
@@ -95,6 +112,23 @@ class MainViewModelTest {
         viewModel.onBirthDateSelected(null)
 
         assertNull(viewModel.uiState.value.birthDate)
+    }
+
+    @Test
+    fun `a previously saved birth date is restored on launch`() {
+        // The date is already on disk before this ViewModel ever exists —
+        // exactly what happens when the app is reopened after process death.
+        val settings = settingsRepository().apply {
+            setBirthDate(LocalDate.of(1990, 8, 10))
+        }
+
+        val viewModel = viewModelWith(text = "Welcome back to your stars, Leo.", settings = settings)
+        awaitIdle()
+
+        val state = viewModel.uiState.value
+        assertEquals(LocalDate.of(1990, 8, 10), state.birthDate)
+        assertEquals(Zodiac.LEO, state.zodiac)
+        assertEquals("Welcome back to your stars, Leo.", state.horoscope?.text)
     }
 }
 
