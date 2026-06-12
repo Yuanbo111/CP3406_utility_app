@@ -1,5 +1,6 @@
 package com.example.issac.ui.main
 
+import android.content.Intent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.animateContentSize
@@ -50,6 +51,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -298,11 +300,31 @@ private fun MainScreenContent(
                                 modifier = Modifier.padding(vertical = 12.dp),
                                 color = OnGlass.copy(alpha = 0.3f),
                             )
+                            val context = LocalContext.current
                             HoroscopeCard(
                                 isLoading = uiState.isLoading,
                                 horoscope = uiState.horoscope,
                                 isError = uiState.isError,
                                 readingLength = uiState.readingLength,
+                                onShare = {
+                                    // Hand the reading to any app that accepts
+                                    // plain text via the system share sheet.
+                                    uiState.horoscope?.let { horoscope ->
+                                        val sendIntent = Intent(Intent.ACTION_SEND).apply {
+                                            type = "text/plain"
+                                            putExtra(
+                                                Intent.EXTRA_TEXT,
+                                                context.getString(
+                                                    R.string.share_reading_text,
+                                                    "${zodiac.symbol} ${zodiac.displayName}",
+                                                    horoscope.date.toString(),
+                                                    uiState.readingLength.format(horoscope.text),
+                                                ),
+                                            )
+                                        }
+                                        context.startActivity(Intent.createChooser(sendIntent, null))
+                                    }
+                                },
                             )
                         }
                     }

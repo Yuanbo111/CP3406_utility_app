@@ -5,7 +5,12 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -27,7 +32,8 @@ import java.time.LocalDate
  * Shows today's reading under a small caption, switching between three states:
  * a spinner while [isLoading], an error message when [isError] is true, or the
  * [horoscope] text once loaded. [readingLength] controls how much of the text
- * is shown. Stateless and previewable in every state.
+ * is shown, and [onShare] fires from the share icon that accompanies a loaded
+ * reading. Stateless and previewable in every state.
  */
 @Composable
 fun HoroscopeCard(
@@ -35,6 +41,7 @@ fun HoroscopeCard(
     horoscope: Horoscope?,
     isError: Boolean,
     readingLength: ReadingLength,
+    onShare: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(
@@ -75,11 +82,23 @@ fun HoroscopeCard(
                 )
 
                 ReadingState.LOADED -> if (horoscope != null) {
-                    Text(
-                        text = readingLength.format(horoscope.text),
-                        fontSize = 15.sp,
-                        textAlign = TextAlign.Center,
-                    )
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Text(
+                            text = readingLength.format(horoscope.text),
+                            fontSize = 15.sp,
+                            textAlign = TextAlign.Center,
+                        )
+                        // Only a real reading is shareable, so the icon lives
+                        // inside the loaded state and animates in with it.
+                        IconButton(onClick = onShare) {
+                            Icon(
+                                imageVector = Icons.Filled.Share,
+                                contentDescription = stringResource(R.string.share_reading),
+                                tint = LocalContentColor.current.copy(alpha = 0.75f),
+                                modifier = Modifier.size(20.dp),
+                            )
+                        }
+                    }
                 }
             }
         }
@@ -101,6 +120,7 @@ private fun HoroscopeCardLoadedPreview() {
             ),
             isError = false,
             readingLength = ReadingLength.FULL,
+            onShare = {},
         )
     }
 }
@@ -114,6 +134,7 @@ private fun HoroscopeCardLoadingPreview() {
             horoscope = null,
             isError = false,
             readingLength = ReadingLength.FULL,
+            onShare = {},
         )
     }
 }
@@ -127,6 +148,7 @@ private fun HoroscopeCardErrorPreview() {
             horoscope = null,
             isError = true,
             readingLength = ReadingLength.FULL,
+            onShare = {},
         )
     }
 }

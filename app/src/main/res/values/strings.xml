@@ -19,6 +19,9 @@
     <string name="age_format">Age: %1$d years, %2$d months, %3$d days</string>
     <string name="todays_reading">Today\'s Reading</string>
     <string name="horoscope_error">Today\'s reading isn\'t available right now. Please try again later.</string>
+    <string name="share_reading">Share today\'s reading</string>
+    <!-- %1$s = "♌ Leo", %2$s = the reading's date, %3$s = the reading itself -->
+    <string name="share_reading_text">%1$s — Daily Star reading for %2$s\n\n%3$s</string>
 
     <!-- Settings screen -->
     <string name="settings_title">Settings</string>
