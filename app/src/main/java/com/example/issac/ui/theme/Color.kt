@@ -44,3 +44,12 @@ val NightGradientBottom = Color(0xFF0A0B14)
 val GlassDark = Color(0x59000000)  // 35% black
 val OnGlass = Color(0xFFF4F3F9)    // near-white text on the glass
 val GlassError = Color(0xFFFFB4AB) // soft light red, readable on the dark glass
+
+// Light-theme "frosted glass" variants of the destiny card. In light theme the
+// card flips to a pale frost with dark text, so the Today screen reads bright;
+// dark theme keeps the dark glass above. Both still let the photo show through
+// and stay legible over bright AND dark NASA photos (the scrim sits under the
+// card in both themes). GlassLight's alpha is the main tuning knob.
+val GlassLight = Color(0xA6FFFFFF)      // 65% white frost
+val OnGlassLight = Color(0xFF1B1B2F)    // deep indigo-black text on the frost
+val GlassErrorLight = Color(0xFFB3261E) // deep red, readable on the pale frost

@@ -92,7 +92,7 @@ fun UtilityApp(darkTheme: Boolean) {
         when (currentTab) {
             // The screen fills the window (photo runs behind the glass bar);
             // only its foreground content pads itself clear of the bar.
-            Tab.Today -> MainScreen(contentPadding = innerPadding)
+            Tab.Today -> MainScreen(contentPadding = innerPadding, darkTheme = darkTheme)
             Tab.Settings -> SettingsScreen(modifier = Modifier.padding(innerPadding))
         }
     }

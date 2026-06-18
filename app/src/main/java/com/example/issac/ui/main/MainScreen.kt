@@ -69,10 +69,15 @@ import com.example.issac.ui.main.components.AgeCard
 import com.example.issac.ui.main.components.HoroscopeCard
 import com.example.issac.ui.main.components.ZodiacBadge
 import com.example.issac.ui.theme.GlassDark
+import com.example.issac.ui.theme.GlassError
+import com.example.issac.ui.theme.GlassErrorLight
+import com.example.issac.ui.theme.GlassLight
+import com.example.issac.ui.theme.Gold40
 import com.example.issac.ui.theme.IssacTheme
 import com.example.issac.ui.theme.NightGradientBottom
 import com.example.issac.ui.theme.NightGradientTop
 import com.example.issac.ui.theme.OnGlass
+import com.example.issac.ui.theme.OnGlassLight
 import com.example.issac.ui.theme.StarGold
 import java.time.LocalDate
 import java.time.Period
@@ -81,6 +86,7 @@ import java.time.Period
 fun MainScreen(
     modifier: Modifier = Modifier,
     contentPadding: PaddingValues = PaddingValues(0.dp),
+    darkTheme: Boolean = true,
     viewModel: MainViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -89,6 +95,7 @@ fun MainScreen(
     MainScreenContent(
         modifier = modifier,
         contentPadding = contentPadding,
+        darkTheme = darkTheme,
         uiState = uiState,
         showDatePicker = showDatePicker,
         onDateSelected = viewModel::onBirthDateSelected,
@@ -103,6 +110,7 @@ fun MainScreen(
 private fun MainScreenContent(
     modifier: Modifier = Modifier,
     contentPadding: PaddingValues = PaddingValues(0.dp),
+    darkTheme: Boolean = true,
     uiState: MainUiState,
     showDatePicker: Boolean,
     onDateSelected: (Long?) -> Unit,
@@ -111,6 +119,16 @@ private fun MainScreenContent(
     onBackgroundLoaded: () -> Unit,
 ) {
     val datePickerState = rememberDatePickerState()
+
+    // The destiny card sits on the photo, so its colours are fixed sets rather
+    // than theme roles — but we pick the SET by theme so the toggle visibly
+    // changes the Today screen: dark glass + light text in dark theme, a pale
+    // frost + dark text + dark gold in light theme. Both stay readable over the
+    // photo thanks to the scrim underneath.
+    val glassContainer = if (darkTheme) GlassDark else GlassLight
+    val glassContent = if (darkTheme) OnGlass else OnGlassLight
+    val glassAccent = if (darkTheme) StarGold else Gold40
+    val glassError = if (darkTheme) GlassError else GlassErrorLight
 
     Box(modifier = modifier.fillMaxSize()) {
         // 1. Always-present night-sky gradient — the offline / loading fallback.
@@ -263,13 +281,13 @@ private fun MainScreenContent(
                             .animateContentSize(),
                         elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
                         colors = CardDefaults.cardColors(
-                            // A faint dark "glass" over the photo. Fixed colours
-                            // (like StarGold) rather than theme roles, because the
-                            // card always sits on the photo: the photo shows
-                            // through the veil, and the light text stays readable
-                            // in both themes thanks to the scrim underneath.
-                            containerColor = GlassDark,
-                            contentColor = OnGlass,
+                            // A faint "glass" over the photo, picked by theme (see
+                            // the palette above): dark glass in dark theme, a pale
+                            // frost in light theme. The photo still shows through
+                            // the veil and the text stays readable thanks to the
+                            // scrim underneath.
+                            containerColor = glassContainer,
+                            contentColor = glassContent,
                         ),
                     ) {
                         Column(
@@ -284,17 +302,17 @@ private fun MainScreenContent(
                             Text(text = stringResource(R.string.birth_date_label, birthDate), fontSize = 16.sp)
                             HorizontalDivider(
                                 modifier = Modifier.padding(vertical = 12.dp),
-                                color = OnGlass.copy(alpha = 0.3f),
+                                color = glassContent.copy(alpha = 0.3f),
                             )
                             AgeCard(age = age)
                             Spacer(modifier = Modifier.height(16.dp))
-                            // Gold glyph (not theme primary): indigo would vanish
-                            // against the dark glass in light theme.
-                            ZodiacBadge(zodiac = zodiac, color = StarGold)
+                            // Gold glyph (not theme primary): bright gold on the
+                            // dark glass, a deeper gold on the light frost.
+                            ZodiacBadge(zodiac = zodiac, color = glassAccent)
 
                             HorizontalDivider(
                                 modifier = Modifier.padding(vertical = 12.dp),
-                                color = OnGlass.copy(alpha = 0.3f),
+                                color = glassContent.copy(alpha = 0.3f),
                             )
                             val context = LocalContext.current
                             HoroscopeCard(
@@ -302,6 +320,7 @@ private fun MainScreenContent(
                                 horoscope = uiState.horoscope,
                                 isError = uiState.isError,
                                 readingLength = uiState.readingLength,
+                                errorColor = glassError,
                                 onShare = {
                                     // Hand the reading to any app that accepts
                                     // plain text via the system share sheet.
@@ -356,21 +375,42 @@ private fun MainScreenContent(
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-private fun MainScreenPreview() {
+private fun sampleUiState(): MainUiState {
     val sampleBirthDate = LocalDate.of(1990, 8, 10)
-    IssacTheme {
+    return MainUiState(
+        birthDate = sampleBirthDate,
+        zodiac = Zodiac.LEO,
+        age = Period.between(sampleBirthDate, LocalDate.now()),
+        horoscope = Horoscope(
+            date = LocalDate.now(),
+            text = "A calm, productive day — tackle the small tasks first.",
+        ),
+    )
+}
+
+@Preview(showBackground = true, name = "Today – dark")
+@Composable
+private fun MainScreenDarkPreview() {
+    IssacTheme(darkTheme = true) {
         MainScreenContent(
-            uiState = MainUiState(
-                birthDate = sampleBirthDate,
-                zodiac = Zodiac.LEO,
-                age = Period.between(sampleBirthDate, LocalDate.now()),
-                horoscope = Horoscope(
-                    date = LocalDate.now(),
-                    text = "A calm, productive day — tackle the small tasks first.",
-                ),
-            ),
+            darkTheme = true,
+            uiState = sampleUiState(),
+            showDatePicker = false,
+            onDateSelected = {},
+            onShowDatePicker = {},
+            onRefreshBackground = {},
+            onBackgroundLoaded = {},
+        )
+    }
+}
+
+@Preview(showBackground = true, name = "Today – light")
+@Composable
+private fun MainScreenLightPreview() {
+    IssacTheme(darkTheme = false) {
+        MainScreenContent(
+            darkTheme = false,
+            uiState = sampleUiState(),
             showDatePicker = false,
             onDateSelected = {},
             onShowDatePicker = {},

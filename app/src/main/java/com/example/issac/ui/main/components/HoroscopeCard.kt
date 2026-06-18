@@ -16,6 +16,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -33,7 +34,9 @@ import java.time.LocalDate
  * a spinner while [isLoading], an error message when [isError] is true, or the
  * [horoscope] text once loaded. [readingLength] controls how much of the text
  * is shown, and [onShare] fires from the share icon that accompanies a loaded
- * reading. Stateless and previewable in every state.
+ * reading. [errorColor] lets the host pick a red that reads on its card (light
+ * red on the dark glass, deep red on the light frost). Stateless and previewable
+ * in every state.
  */
 @Composable
 fun HoroscopeCard(
@@ -43,6 +46,7 @@ fun HoroscopeCard(
     readingLength: ReadingLength,
     onShare: () -> Unit,
     modifier: Modifier = Modifier,
+    errorColor: Color = GlassError,
 ) {
     Column(
         modifier = modifier,
@@ -75,9 +79,9 @@ fun HoroscopeCard(
                 ReadingState.ERROR -> Text(
                     text = stringResource(R.string.horoscope_error),
                     fontSize = 14.sp,
-                    // Fixed soft red: the theme's error role is too dark to read
-                    // on the dark glass card in light theme.
-                    color = GlassError,
+                    // Host-supplied red so it reads on whichever glass is showing
+                    // (light red on the dark card, deep red on the light frost).
+                    color = errorColor,
                     textAlign = TextAlign.Center,
                 )
 
